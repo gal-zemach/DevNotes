@@ -3,6 +3,8 @@ services:
     build: ./backend
     ports:
       - "5001:5001"
+    volumes:
+      - notes_data:/app/data
     networks:
       - devnotes-net
 
@@ -12,6 +14,9 @@ services:
       - "8000:80"
     networks:
       - devnotes-net
+
+volumes:
+  notes_data:
 
 networks:
   devnotes-net:

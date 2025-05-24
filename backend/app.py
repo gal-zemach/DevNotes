@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 ROUTE_NOTES = "/notes"
-DATA_FILE = "notes.json"
+DATA_FILE = "data/notes.json"
 NOTES_FIELD = "note"
 
 HTML_CREATED = 201
