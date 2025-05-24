@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5001"
+    networks:
+      - devnotes-net
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:80"
+    networks:
+      - devnotes-net
+
+networks:
+  devnotes-net:
+    driver: bridge
