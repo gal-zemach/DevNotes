@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# VS Code / JetBrains IDEs
+.vscode/
+.idea/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Flask runtime
+instance/
+*.db
+notes.json
+
+# Log files
+*.log
+
+# Docker
+*.pid
+*.tar
+*.img
+*.gz
+
+# PyCharm-specific
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Test outputs
+htmlcov/
+.coverage
+.tox/
+.pytest_cache/
+cache/
+dist/
+build/
+
+# Ignore Docker volumes (if mounted)
+volumes/
