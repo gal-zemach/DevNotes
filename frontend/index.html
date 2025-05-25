@@ -11,8 +11,10 @@
     <ul id="notesList"></ul>
 
     <script>
+        const API_URL = "/notes";
+
         async function loadNotes() {
-            const res = await fetch("http://localhost:5001/notes");
+            const res = await fetch(API_URL);
             const notes = await res.json();
             const list = document.getElementById("notesList");
             list.innerHTML = "";
@@ -31,7 +33,7 @@
                 return;
             }
 
-            await fetch("http://localhost:5001/notes", {
+            await fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ note })

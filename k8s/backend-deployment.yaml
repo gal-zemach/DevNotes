@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    apps: devnotes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: devnotes-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5001
+          volumeMounts:
+            - name: notes-storage
+              mountPath: /app/data
+      volumes:
+        - name: notes-storage
+          emptyDir: {}  #todo: replace with PersistentVolumeClaim

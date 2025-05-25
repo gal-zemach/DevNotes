@@ -1,5 +1,6 @@
 services:
   backend:
+    image: devnotes-backend
     build: ./backend
     ports:
       - "5001:5001"
@@ -9,6 +10,7 @@ services:
       - devnotes-net
 
   frontend:
+    image: devnotes-frontend
     build: ./frontend
     ports:
       - "8000:80"
