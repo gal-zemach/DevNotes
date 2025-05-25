@@ -25,4 +25,5 @@ spec:
               mountPath: /app/data
       volumes:
         - name: notes-storage
-          emptyDir: {}  #todo: replace with PersistentVolumeClaim
+          persistentVolumeClaim:
+            claimName: devnotes-pvc
