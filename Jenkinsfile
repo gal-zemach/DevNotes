@@ -1,10 +1,6 @@
 // Jenkinsfile
 pipeline {
   agent any
-  options {
-    skipDefaultCheckout()
-  }
-
   environment {
     BACKEND_IMAGE  = "devnotes-backend:latest"
     FRONTEND_IMAGE = "devnotes-frontend:latest"
