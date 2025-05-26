@@ -1,6 +1,9 @@
 // Jenkinsfile
 pipeline {
   agent any
+  options {
+    skipDefaultCheckout()
+  }
 
   environment {
     BACKEND_IMAGE  = "devnotes-backend:latest"
@@ -9,7 +12,12 @@ pipeline {
   }
 
   stages {
-  
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
     stage('Build Backend Image') {
       steps {
         dir('backend') {
