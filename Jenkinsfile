@@ -32,10 +32,6 @@ pipeline {
       }
     }
 
-    /*
-    // You can uncomment these once you have `kind` and `kubectl` in Jenkins,
-    // and you want Jenkins to load the images into kind and deploy:
-
     stage('Load Images into kind') {
       steps {
         sh "kind load docker-image ${env.BACKEND_IMAGE} --name ${env.KIND_CLUSTER}"
@@ -48,7 +44,6 @@ pipeline {
         sh "kubectl apply -f k8s/"
       }
     }
-    */
   }
 
   post {
