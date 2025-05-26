@@ -1,10 +1,11 @@
 // Jenkinsfile
 pipeline {
   agent any
+
   environment {
     BACKEND_IMAGE  = "devnotes-backend:latest"
     FRONTEND_IMAGE = "devnotes-frontend:latest"
-    KIND_CLUSTER   = "devnotes"
+    KIND_NODE      = "devnotes-control-plane"
   }
 
   stages {
@@ -17,8 +18,8 @@ pipeline {
     stage('Build Backend Image') {
       steps {
         dir('backend') {
-          echo "Building ${env.BACKEND_IMAGE}"
-          sh "docker build -t ${env.BACKEND_IMAGE} ."
+          echo "Building ${BACKEND_IMAGE}"
+          sh "docker build -t ${BACKEND_IMAGE} ."
         }
       }
     }
@@ -26,16 +27,26 @@ pipeline {
     stage('Build Frontend Image') {
       steps {
         dir('frontend') {
-          echo "Building ${env.FRONTEND_IMAGE}"
-          sh "docker build -t ${env.FRONTEND_IMAGE} ."
+          echo "Building ${FRONTEND_IMAGE}"
+          sh "docker build -t ${FRONTEND_IMAGE} ."
         }
       }
     }
 
-    stage('Load Images into kind') {
+    stage('Load into Kind') {
       steps {
-        sh "kind load docker-image ${env.BACKEND_IMAGE} --name ${env.KIND_CLUSTER}"
-        sh "kind load docker-image ${env.FRONTEND_IMAGE} --name ${env.KIND_CLUSTER}"
+        echo "Pushing ${BACKEND_IMAGE} into ${KIND_NODE}"
+        sh """
+          docker save ${BACKEND_IMAGE} \
+          | docker exec -i ${KIND_NODE} \
+              ctr -n=k8s.io images import -
+        """
+        echo "Pushing ${FRONTEND_IMAGE} into ${KIND_NODE}"
+        sh """
+          docker save ${FRONTEND_IMAGE} \
+          | docker exec -i ${KIND_NODE} \
+              ctr -n=k8s.io images import -
+        """
       }
     }
 
