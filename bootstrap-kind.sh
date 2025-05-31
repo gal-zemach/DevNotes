@@ -8,7 +8,7 @@ echo "🔄 Deleting old kind cluster (if it exists)…"
 kind delete cluster --name ${CLUSTER} || true
 
 echo "🚀 Creating kind cluster with port mappings…"
-kind create cluster --name ${CLUSTER} --config kind-config.yaml
+kind create cluster --name ${CLUSTER} --config k8s/kind-config.yaml
 
 echo "🏷️  Labeling control-plane node for ingress…"
 kubectl label node ${CLUSTER}-control-plane ingress-ready=true --overwrite
@@ -27,6 +27,11 @@ kubectl apply -f k8s/backend-deployment.yaml
 kubectl apply -f k8s/backend-service.yaml
 kubectl apply -f k8s/frontend-deployment.yaml
 kubectl apply -f k8s/frontend-service.yaml
+
+echo "⏳ Waiting for Ingress controller deployment…"
+kubectl -n ingress-nginx rollout status deployment ingress-nginx-controller --timeout=120s
+
+echo "📂 Applying Ingress manifest…"
 kubectl apply -f k8s/ingress.yaml
 
 echo "✅ Bootstrap complete!  Browse to http://localhost:30080 and http://localhost:30080/notes"
