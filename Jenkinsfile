@@ -62,8 +62,6 @@ pipeline {
           kubectl apply -f k8s/frontend-deployment.yaml
           kubectl apply -f k8s/frontend-service.yaml
 
-          kubectl -n ingress-nginx rollout status deployment ingress-nginx-controller --timeout=120s
-
           kubectl apply -f k8s/ingress.yaml
         '''
       }
