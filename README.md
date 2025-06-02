@@ -1,8 +1,12 @@
 
 # DevNotes — Containerized Full-Stack Notes App
 
-DevNotes is a solo, self-contained project demonstrating how to containerize a simple full-stack application, deploy it to a local Kubernetes cluster (kind), manage state with a PersistentVolumeClaim, with a Jenkins job that builds and deploys everything on-demand.
-<br/><br/>
+DevNotes is a solo, self-contained project demonstrating how to:
+
+1. Containerize a simple full-stack app,
+2. Deploy it to a local Kubernetes cluster (kind) with state persisted via a PVC,
+3. And automate builds/deploys via a Jenkins job.
+
 This README covers the project’s purpose, architecture, and setup steps.
 
 ## Table of Contents
@@ -13,8 +17,8 @@ This README covers the project’s purpose, architecture, and setup steps.
   - [Docker Compose](#option-1-docker-compose)
   - [Kubernetes with kind](#option-2-kubernetes-with-kind)
   - [Jenkins CI/CD](#option-3-jenkins-cicd)
-- [Jenkins in Docker First-Time Setup](#jenkins-in-docker-first-time-setup)
-- [Fixed Ports](#kubernetes-fixed-ports)
+- [Jenkins-in-Docker First-Time Setup](#jenkins-in-docker-first-time-setup)
+- [Kubernetes Fixed Ports](#kubernetes-fixed-ports)
 - [Next Steps and Future Improvements](#next-steps-and-future-improvements)
 
 ---
@@ -23,47 +27,47 @@ This README covers the project’s purpose, architecture, and setup steps.
 
 DevNotes aims to:
 
-- Illustrate how to package a backend and frontend into separate Docker images.
-- Show how to spin up a multi-service application using Kubernetes (kind) manifests.
-- Demonstrate data persistence via a PVC that survives pod restarts (but not cluster deletion).
-- Provide a reference CI/CD pipeline (Jenkins) for building images and deploying to kind.
+- Show how to package backend and frontend into separate Docker images  
+- Demonstrate how to deploy a multi-service app with Kubernetes (kind) manifests  
+- Illustrate persistent storage via a PVC that survives pod restarts (but not cluster deletion)  
+- Provide a simple Jenkins CI/CD pipeline for building images and deploying to kind  
 
-The actual “notes” app is trivial (create/read simple text entries), as the focus is on the container/cluster setup. 
+The actual “notes” app is trivial (create/read simple text entries), as the focus is on the container/cluster setup.
 
 ---
 
 ## System Overview
 
 ### Components
-1. **The DevNotes App**
-   - A fullstack app for note-taking. Made of:
-   - **Backend**, located in `backend/`
-     - A small Flask app that handles GET and POST requests for notes. 
-     - It stores data in a local `notes.json` file.
-   - **Frontend**, Located in `frontend/`
-     - A static HTML page served with Nginx. It lets users submit new notes and view existing ones by calling the backend API.
+
+1. **The DevNotes App**  
+   - A fullstack app for note-taking. Consists of:  
+     - **Backend**, located in `backend/`  
+       - A small Flask app that handles GET and POST requests for notes.  
+       - It stores data in a local `notes.json` file.  
+     - **Frontend**, located in `frontend/`  
+       - A static HTML page served with Nginx. It lets users submit new notes and view existing ones by calling the backend API.
 
 
-2. **Docker Compose**
-   - `docker-compose.yml` (root of repo)
-   - Spins up both services and mounts a volume to preserve note data between runs.
-   - Unused if you're using Kubernetes, but super convenient for local development and definitely the way to go for a simple setup.
+2. **Docker Compose**  
+   - `docker-compose.yml` (root of repo)  
+   - Spins up both services and mounts a volume to preserve note data between runs.  
+   - Unused if you're using Kubernetes, but convenient for local development.
 
 
-3. **Kubernetes (kind)**
-   - The app runs inside a local Kubernetes cluster using kind, emulating a production-like environment.
-   - All YAML manifests live under `k8s/`.
-     - `backend-deployment.yaml`, `backend-service.yaml` – deploy + expose the BE's Flask API.
-     - `frontend-deployment.yaml`, `frontend-service.yaml` – deploy + expose the FE.
-     - `persistent-volume.yaml` – defines a Persistent Volume (PV) inside the kind node.
-     - `persistent-volume-claim.yaml` – claims that PV for the backend.
-     - `ingress.yaml` - allows to access the different apps within the cluster with a clean, unified address instead of multiple ports.
-     - `kind-config.yaml` – allows us to access the container using fixed ports.
+3. **Kubernetes (kind)**  
+   - Runs the app in a local cluster emulating a production-like environment.  
+   - YAML manifests are under `k8s/`:  
+     - `backend-deployment.yaml`, `backend-service.yaml` – deploy and expose the backend  
+     - `frontend-deployment.yaml`, `frontend-service.yaml` – deploy and expose the frontend  
+     - `persistent-volume.yaml`, `persistent-volume-claim.yaml` – enable note persistence  
+     - `ingress.yaml` – enables a single access point via port 30080  
+     - `kind-config.yaml` – configures kind to expose fixed ports
 
 
-5. **(Optional) Jenkins CI/CD**
-   - simple CI pipeline that automates building Docker images and deploying them to the cluster.
-   - Lives under `jenkins/` and in the `Jenkinsfile` (root of repo).
+4. **(Optional) Jenkins CI/CD**  
+   - Automates Docker builds and deployment to the cluster  
+   - Configuration lives in `jenkins/` and the root `Jenkinsfile`
 
 ---
 
@@ -71,27 +75,32 @@ The actual “notes” app is trivial (create/read simple text entries), as the 
 
 To run this project, make sure you have the following installed on your machine:
 
-- **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (includes Docker CLI + Docker Engine)
-- **[kubectl](https://kubernetes.io/docs/tasks/tools/)** (Kubernetes command-line tool)
-- **[kind](https://kind.sigs.k8s.io/)** (to run a Kubernetes cluster locally using Docker)
+- **[Docker Desktop](https://www.docker.com/products/docker-desktop/)**
+- **[kubectl](https://kubernetes.io/docs/tasks/tools/)**
+- **[kind](https://kind.sigs.k8s.io/)**
+- **[Git](https://git-scm.com/)**
 
-If you're using macOS and have [Homebrew](https://brew.sh/), you can install most of these with:
+If you're on macOS with Homebrew installed:
 ```bash
 brew install docker kubectl kind git
 ```
 
+### Jenkins (Optional, for CI/CD automation)
 
-### Jenkins Installation (for CI/CD automation):
-- **[Jenkins](https://www.jenkins.io/)** – installed manually or via Docker Compose  
-- Alternatively, just use the provided `jenkins/docker-compose.yml` to run Jenkins locally.<br/>
-If using this, also refer to [Jenkins in Docker First-Time Setup](#jenkins-in-docker-first-time-setup).
+You can install Jenkins manually or simply use the provided Docker setup:
+
+```bash
+cd jenkins
+docker-compose up --build -d
+```
+
+If using this method, see [Jenkins-in-Docker First-Time Setup](#jenkins-in-docker-first-time-setup).
 
 ---
 
 ## Usage
 
-How to start, use, and stop the project using Docker Compose, Kubernetes (kind), or Jenkins.
-
+How to start, use, and stop the project using Docker Compose, Kubernetes, or Jenkins.
 
 ### Option 1: Docker Compose
 
@@ -109,18 +118,21 @@ docker-compose up --build
 docker-compose down
 ```
 
+---
+
 ### Option 2: Kubernetes with kind
 
 **Start everything:**
-Starting Kubernetes manually has several steps, including starting the cluster, building & loading the docker images, and applying the manifests in-order.<br/>
-I've created a script to do all of that, refer to it for the specific commands.
+
+To save time, run the provided bootstrap script (`bootstrap-kind.sh`), which creates the cluster, builds & loads images, and applies manifests in order.
+
 ```bash
 ./bootstrap-kind.sh
 ```
 
 **Use the app:**
-- Frontend: [http://localhost:30080](http://localhost:30080)
-- Backend is called internally from the frontend
+- Frontend: [http://localhost:30080](http://localhost:30080)  
+- The frontend internally calls the backend API
 
 **Stop everything:**
 ```bash
@@ -138,14 +150,14 @@ docker-compose up --build -d
 ```
 
 **Access Jenkins UI:**
-- Go to [http://localhost:8081](http://localhost:8081)
+- Visit [http://localhost:8081](http://localhost:8081)
 
 **Run the pipeline:**
-- Create a classic job using the `Jenkinsfile` at the root of the repo
-- Run the job to build, load, and deploy everything to kind
+- Create a classic job using the `Jenkinsfile` at the root of the repo  
+- Run the job to build, load, and deploy to kind
 
 **Use the app (after the job runs):**
-- Visit: [http://localhost:30080](http://localhost:30080)
+- Visit [http://localhost:30080](http://localhost:30080)
 
 **Stop Jenkins:**
 ```bash
@@ -155,42 +167,48 @@ docker-compose down
 
 ---
 
-## Jenkins in Docker first-time setup
+## Jenkins-in-Docker First-Time Setup
 
-Jenkins in Docker requires some specific setup when running the cluster locally.<br/>
+Because Docker containers don’t share the host’s `127.0.0.1`, Jenkins needs to talk to the cluster at `host.docker.internal` instead.
 
-We need to supply Jenkins with an edited version of the Kubernetes config file `~/.kube/config`.
-This is required because the address `127.0.0.1` is used, which wouldn't work when ran from inside the Jenkins container. 
+We patch your `kubeconfig` to reflect this.
 
-We'll create a `kubeconfig.patched` file, that replaces `127.0.0.1` with `host.docker.internal`.
-
-From inside the project folder run:
+From inside the project folder, run:
 ```bash
-kubectl config view --raw --minify --context=kind-devnotes \
-  | sed 's|https://127.0.0.1:|https://host.docker.internal:|; s|https://0.0.0.0:|https://host.docker.internal:|' \
-  > ./jenkins/kubeconfig.patched
+kubectl config view --raw --minify --context=kind-devnotes   | sed 's|https://127.0.0.1:|https://host.docker.internal:|; s|https://0.0.0.0:|https://host.docker.internal:|'   > ./jenkins/kubeconfig.patched
 ```
 
-Note: If Jenkins has TLS authentication issues, you can skip it by editing `kubeconfig.patched` and replacing the `certificate-authority-data` line with `insecure-skip-tls-verify: true`.
+If you run into TLS issues inside Jenkins, open `kubeconfig.patched` and replace:
+```yaml
+certificate-authority-data: ...
+```
+with:
+```yaml
+insecure-skip-tls-verify: true
+```
+
+This allows Jenkins to connect without verifying TLS certificates.
 
 ---
 
 ## Kubernetes Fixed Ports
 
-Below is a summary of all host↔container port mappings when using kubernetes. You can edit these in `k8s/kind-config.yaml`.
+These port mappings come from `k8s/kind-config.yaml`.
 
-| Purpose                          | Host Address            | Container Port |
-|----------------------------------|-------------------------|----------------|
-| **Backend (Flask API)**          | `localhost:5001`        | `5001`         |
-| **Frontend (nginx static site)** | `localhost:30080`       | `80`           |
-| **Kubernetes API Server**        | `localhost:6443`        | `6443`         |
+| Purpose                          | Host Address      | Container Port |
+|----------------------------------|-------------------|----------------|
+| **Backend (Flask API)**          | `localhost:5001`  | `5001`         |
+| **Frontend (Nginx static site)** | `localhost:30080` | `80`           |
+| **Kubernetes API Server**        | `localhost:6443`  | `6443`         |
+
+> ⚠️ These only apply when running via Kubernetes, not Docker Compose.
 
 ---
 
 ## Next Steps and Future Improvements
 
-- **Use Helm charts**: Package the Kubernetes manifests as a Helm chart for parameterized deployments.
-- **Implement end-to-end tests**: Add a test stage in Jenkins that inserts a note via the API, fetches it, and verifies the correct JSON response.
-- **Persist data across cluster deletion**: Modify `persistent-volume.yaml` to use a `hostPath` that points to a local folder.
-- **Add basic authentication**: Secure the backend endpoints with a token or API key, and configure the frontend to send it.
-- **Add GitHub Actions**: Replace Jenkins with a GitHub Actions workflow to build images and deploy to kind. A little more fitting for a simple setup.
+- **Use Helm charts**: Package the manifests for easier configuration  
+- **Add end-to-end tests**: Use Jenkins to verify backend behavior via HTTP  
+- **Persist data across cluster deletion**: Use a `hostPath` in `persistent-volume.yaml`  
+- **Add authentication**: Protect the backend API with a token or key  
+- **Use GitHub Actions**: Replace Jenkins with a cloud-based CI/CD pipeline
