@@ -1,11 +1,12 @@
 
 # DevNotes — Containerized Full-Stack Notes App
+> A simple, self-contained setup that demonstrates Dockerized deployment, local Kubernetes (kind) orchestration, and Jenkins CI/CD.
 
 DevNotes is a solo, self-contained project demonstrating how to:
 
 1. Containerize a simple full-stack app,
 2. Deploy it to a local Kubernetes cluster (kind) with state persisted via a PVC,
-3. And automate builds/deploys via a Jenkins job.
+3. Automate builds/deploys via a Jenkins job.
 
 This README covers the project’s purpose, architecture, and setup steps.
 
